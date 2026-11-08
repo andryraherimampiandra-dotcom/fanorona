@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Fanorona",
+    "slug": "fanorona",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "fanorona",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": { "supportsTablet": true },
+    "android": { "package": "com.fanorona.app" },
+    "web": { "bundler": "metro" }
+  }
+}

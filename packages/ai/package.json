@@ -1,0 +1,19 @@
+{
+  "name": "@fanorona/ai",
+  "version": "0.1.0",
+  "description": "Negamax + alpha-beta search for Fanorona, consuming @fanorona/engine",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fanorona/engine": "file:../engine"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

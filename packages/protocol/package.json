@@ -1,0 +1,16 @@
+{
+  "name": "@fanorona/protocol",
+  "version": "0.1.0",
+  "description": "Shared message types for the Fanorona online server and client",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fanorona/engine": "file:../engine"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

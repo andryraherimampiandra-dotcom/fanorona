@@ -1,0 +1,18 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "jsx": "react-native",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@fanorona/engine": ["../../packages/engine/src/index.ts"],
+      "@fanorona/engine/*": ["../../packages/engine/src/*"],
+      "@fanorona/ai": ["../../packages/ai/src/index.ts"],
+      "@fanorona/ai/*": ["../../packages/ai/src/*"],
+      "@fanorona/protocol": ["../../packages/protocol/src/index.ts"],
+      "@fanorona/protocol/*": ["../../packages/protocol/src/*"]
+    }
+  },
+  "include": ["index.ts", "App.tsx", "src/**/*"]
+}

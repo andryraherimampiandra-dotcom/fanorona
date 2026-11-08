@@ -1,0 +1,27 @@
+{
+  "name": "@fanorona/server",
+  "version": "0.1.0",
+  "description": "Fanorona realtime server (Node + ws), authoritative engine",
+  "type": "module",
+  "main": "./src/server.ts",
+  "bin": {
+    "fanorona-server": "./src/server.ts"
+  },
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "smoke": "tsx src/smoke.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fanorona/ai": "file:../ai",
+    "@fanorona/engine": "file:../engine",
+    "@fanorona/protocol": "file:../protocol",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@types/ws": "^8.5.12",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
