@@ -2,6 +2,7 @@
   "name": "@fanorona/server",
   "version": "0.1.0",
   "description": "Fanorona realtime server (Node + ws), authoritative engine",
+  "license": "MIT",
   "type": "module",
   "main": "./src/server.ts",
   "bin": {

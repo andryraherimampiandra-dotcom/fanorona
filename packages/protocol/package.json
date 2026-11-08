@@ -2,6 +2,7 @@
   "name": "@fanorona/protocol",
   "version": "0.1.0",
   "description": "Shared message types for the Fanorona online server and client",
+  "license": "MIT",
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {

@@ -2,6 +2,7 @@
   "name": "@fanorona/ai",
   "version": "0.1.0",
   "description": "Negamax + alpha-beta search for Fanorona, consuming @fanorona/engine",
+  "license": "MIT",
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {

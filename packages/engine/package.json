@@ -2,6 +2,7 @@
   "name": "@fanorona/engine",
   "version": "0.1.0",
   "description": "Pure TypeScript rules engine for Fanorona (Telo, Dimy, Tsivy variants)",
+  "license": "MIT",
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {

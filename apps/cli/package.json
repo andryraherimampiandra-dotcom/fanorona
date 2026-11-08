@@ -2,6 +2,7 @@
   "name": "@fanorona/cli",
   "version": "0.1.0",
   "description": "Terminal game: human vs AI Fanorona",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "fanorona": "./bin/fanorona.mjs"
