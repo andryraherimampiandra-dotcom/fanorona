@@ -69,13 +69,22 @@ npx expo start --web         # browser preview
 ```bash
 cd packages/server
 npm install
-npm run start                # ws://0.0.0.0:8787
+npm run start                # http+ws://0.0.0.0:8787  (WS on /ws)
 npm run smoke                # end-to-end check (no external deps)
 ```
 
 In the mobile app, tap **Online ›** on the game screen. Both players
 enter the server URL and the same 4-char room code; first to join is
 white.
+
+## Shipping it to friends
+
+See **[DEPLOY.md](./DEPLOY.md)** for the full recipe:
+
+1. `fly deploy` from the repo root — single-service Docker image serves the
+   web app + WebSocket on one HTTPS host.
+2. `eas build -p android --profile preview` from `apps/mobile/` — produces a
+   downloadable APK with the server URL baked in. Share the URL.
 
 ## Layout
 

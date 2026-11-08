@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import Constants from "expo-constants";
 import { VARIANTS, countStones, type Player } from "@fanorona/engine";
 import { BoardView } from "../components/BoardView.js";
 import { useOnlineGame, type ConnStatus } from "../hooks/useOnlineGame.js";
@@ -18,12 +19,20 @@ export interface OnlineScreenProps {
   readonly onBack: () => void;
 }
 
+// Production builds bake FANORONA_SERVER_URL into the app at build time via
+// app.config.js → extra.serverUrl. Dev falls back to localhost / 10.0.2.2.
+const BUILT_IN_URL =
+  (Constants.expoConfig?.extra as { serverUrl?: string } | undefined)?.serverUrl ??
+  "ws://localhost:8787/ws";
+
 const DEFAULT_URL =
-  Platform.OS === "web"
-    ? typeof window !== "undefined"
-      ? `ws://${window.location.hostname || "localhost"}:8787`
-      : "ws://localhost:8787"
-    : "ws://10.0.2.2:8787";
+  BUILT_IN_URL.startsWith("wss://") || BUILT_IN_URL.includes("://")
+    ? BUILT_IN_URL
+    : Platform.OS === "web"
+      ? typeof window !== "undefined"
+        ? `ws://${window.location.hostname || "localhost"}:8787`
+        : "ws://localhost:8787"
+      : "ws://10.0.2.2:8787";
 
 export default function OnlineScreen({ onBack }: OnlineScreenProps) {
   const [url, setUrl] = useState(DEFAULT_URL);

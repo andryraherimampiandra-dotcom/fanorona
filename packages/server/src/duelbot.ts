@@ -20,7 +20,7 @@ const CODE = (process.argv.find((a) => a.startsWith("--code="))?.slice(7) ?? "DE
 const MAX_HALF_TURNS = Number(process.argv.find((a) => a.startsWith("--max="))?.slice(6) ?? 40);
 
 const PORT = 18788;
-const URL = `ws://127.0.0.1:${PORT}`;
+const URL = `ws://127.0.0.1:${PORT}/ws`;
 
 interface Client {
   readonly name: string;
@@ -206,11 +206,9 @@ async function main(): Promise<void> {
     console.log(drawBoard(mover.state!));
     const w = mover.state!.board.flat().filter((c) => c === "white").length;
     const b = mover.state!.board.flat().filter((c) => c === "black").length;
-    console.log(
-      `  stones  O=${w}  X=${b}   next: ${mover.state!.toMove.toUpperCase()}${
-        mover.state!.winner ? " · WINNER " + mover.state!.winner.toUpperCase() : ""
-      }`,
-    );
+    const st = mover.state!;
+    const winnerTag = st.winner ? ` · WINNER ${String(st.winner).toUpperCase()}` : "";
+    console.log(`  stones  O=${w}  X=${b}   next: ${st.toMove.toUpperCase()}${winnerTag}`);
     if (mover.state!.winner !== null) break;
     // Let the other client catch up on broadcast messages for its turn.
     await syncOpponent(other, 1500);

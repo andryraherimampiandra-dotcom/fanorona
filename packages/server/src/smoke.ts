@@ -74,7 +74,7 @@ function send(c: Client, msg: ClientMessage): void {
 async function main(): Promise<void> {
   const port = 18787;
   const server = startServer(port);
-  const url = `ws://127.0.0.1:${port}`;
+  const url = `ws://127.0.0.1:${port}/ws`;
 
   const a = await connect(url);
   const b = await connect(url);

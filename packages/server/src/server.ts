@@ -1,4 +1,7 @@
 import { randomUUID } from "node:crypto";
+import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { createReadStream, existsSync, statSync } from "node:fs";
+import { extname, join, normalize, resolve, sep } from "node:path";
 import { WebSocketServer, WebSocket } from "ws";
 import {
   parseClientMessage,
@@ -283,8 +286,68 @@ function onClose(ws: WebSocket): void {
   sendToColor(room, opp, { kind: "opponent_left", graceSeconds: RECONNECT_GRACE_MS / 1000 });
 }
 
-export function startServer(port = DEFAULT_PORT): WebSocketServer {
-  const wss = new WebSocketServer({ port });
+const MIME: Record<string, string> = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "application/javascript; charset=utf-8",
+  ".mjs": "application/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".ico": "image/x-icon",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".ttf": "font/ttf",
+  ".map": "application/json",
+};
+
+function serveStatic(req: IncomingMessage, res: ServerResponse, rootDir: string): void {
+  const url = req.url?.split("?")[0] ?? "/";
+  // SPA fallback: if the path has no extension, serve index.html.
+  let rel = decodeURIComponent(url === "/" ? "/index.html" : url);
+  const safe = normalize(rel).replace(/^\/+/, "");
+  const target = resolve(rootDir, safe);
+  if (!target.startsWith(rootDir + sep) && target !== rootDir) {
+    res.writeHead(403).end("forbidden");
+    return;
+  }
+  let path = target;
+  if (!existsSync(path) || !statSync(path).isFile()) {
+    // SPA fallback for client-side routes.
+    path = join(rootDir, "index.html");
+    if (!existsSync(path)) {
+      res.writeHead(404).end("not found");
+      return;
+    }
+  }
+  const type = MIME[extname(path).toLowerCase()] ?? "application/octet-stream";
+  res.writeHead(200, { "Content-Type": type, "Cache-Control": "public, max-age=300" });
+  createReadStream(path).pipe(res);
+}
+
+export function startServer(port = DEFAULT_PORT, staticRoot?: string): WebSocketServer {
+  const http = createServer((req, res) => {
+    if (req.url === "/health") {
+      res.writeHead(200, { "Content-Type": "text/plain" }).end("ok");
+      return;
+    }
+    if (staticRoot) {
+      serveStatic(req, res, staticRoot);
+    } else {
+      res.writeHead(200, { "Content-Type": "text/plain" }).end("Fanorona server\n");
+    }
+  });
+  // Upgrade WS only on /ws so the HTTP root stays available for the SPA.
+  const wss = new WebSocketServer({ noServer: true });
+  http.on("upgrade", (req, socket, head) => {
+    if ((req.url ?? "").split("?")[0] !== "/ws") {
+      socket.destroy();
+      return;
+    }
+    wss.handleUpgrade(req, socket, head, (ws) => wss.emit("connection", ws, req));
+  });
   wss.on("connection", (ws) => {
     const clientId = randomUUID();
     send(ws, { kind: "welcome", protocol: PROTOCOL_VERSION, clientId });
@@ -307,11 +370,20 @@ export function startServer(port = DEFAULT_PORT): WebSocketServer {
     });
   });
   startIdleSweeper();
-  console.log(`Fanorona server listening on :${port}`);
+  http.listen(port, "0.0.0.0", () => {
+    console.log(
+      `Fanorona server listening on :${port}${staticRoot ? ` (static root: ${staticRoot})` : ""}`,
+    );
+  });
   return wss;
 }
 
 // Direct-invoke entry point.
 if (import.meta.url === `file://${process.argv[1]}`) {
-  startServer();
+  const staticRoot = process.env.STATIC_ROOT
+    ? resolve(process.env.STATIC_ROOT)
+    : existsSync(resolve(process.cwd(), "public"))
+      ? resolve(process.cwd(), "public")
+      : undefined;
+  startServer(DEFAULT_PORT, staticRoot);
 }
