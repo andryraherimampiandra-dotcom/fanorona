@@ -13,7 +13,10 @@ module.exports = ({ config }) => ({
   android: { package: "com.fanorona.app" },
   web: { bundler: "metro" },
   extra: {
-    serverUrl: process.env.FANORONA_SERVER_URL ?? "ws://localhost:8787/ws",
+    // Only baked in when FANORONA_SERVER_URL is set at build time. When unset,
+    // the web client uses same-origin (wss://<page-host>/ws) so a Cloudflare
+    // Tunnel URL just works without rebuilding.
+    serverUrl: process.env.FANORONA_SERVER_URL || undefined,
     eas: {
       // Fill in after `eas init` on your machine; the Expo CLI prompts for this.
       projectId: process.env.EAS_PROJECT_ID ?? undefined,

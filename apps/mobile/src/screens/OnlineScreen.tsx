@@ -19,20 +19,28 @@ export interface OnlineScreenProps {
   readonly onBack: () => void;
 }
 
-// Production builds bake FANORONA_SERVER_URL into the app at build time via
-// app.config.js → extra.serverUrl. Dev falls back to localhost / 10.0.2.2.
-const BUILT_IN_URL =
-  (Constants.expoConfig?.extra as { serverUrl?: string } | undefined)?.serverUrl ??
-  "ws://localhost:8787/ws";
+// URL resolution order:
+//   1. Env-baked URL from app.config.js → extra.serverUrl (eas build / expo export
+//      with FANORONA_SERVER_URL set).
+//   2. Web: same origin as the served page (wss://<host>/ws when loaded over https),
+//      so a Cloudflare Tunnel URL works out-of-the-box.
+//   3. Android emulator: ws://10.0.2.2:8787/ws (the emulator's host-loopback alias).
+//   4. Fallback: ws://localhost:8787/ws.
+const BUILT_IN_URL = (
+  Constants.expoConfig?.extra as { serverUrl?: string } | undefined
+)?.serverUrl;
 
-const DEFAULT_URL =
-  BUILT_IN_URL.startsWith("wss://") || BUILT_IN_URL.includes("://")
-    ? BUILT_IN_URL
-    : Platform.OS === "web"
-      ? typeof window !== "undefined"
-        ? `ws://${window.location.hostname || "localhost"}:8787`
-        : "ws://localhost:8787"
-      : "ws://10.0.2.2:8787";
+function resolveDefaultUrl(): string {
+  if (BUILT_IN_URL) return BUILT_IN_URL;
+  if (Platform.OS === "web" && typeof window !== "undefined" && window.location?.host) {
+    const scheme = window.location.protocol === "https:" ? "wss:" : "ws:";
+    return `${scheme}//${window.location.host}/ws`;
+  }
+  if (Platform.OS === "android") return "ws://10.0.2.2:8787/ws";
+  return "ws://localhost:8787/ws";
+}
+
+const DEFAULT_URL = resolveDefaultUrl();
 
 export default function OnlineScreen({ onBack }: OnlineScreenProps) {
   const [url, setUrl] = useState(DEFAULT_URL);
